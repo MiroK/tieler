@@ -1,4 +1,4 @@
-from dolfin import MeshFunction, Mesh, info, HDF5File, CompiledSubDomain, SubsetIterator
+from dolfin import MeshFunction, Mesh, info, HDF5File
 import numpy as np
 
 
@@ -54,8 +54,8 @@ def Tile(mesh_path, mesh_data, TOL=1E-8):
         # Compute periodicity in the vertices
         to_master = lambda x, shift=shift_x: x - shift
         # Mapping facets
-        master = CompiledSubDomain('near(x[i], A, tol)', i=axis, A=min_x[axis], tol=TOL)
-        slave = CompiledSubDomain('near(x[i], A, tol)', i=axis, A=max_x[axis], tol=TOL)
+        master = lambda x, axis=axis, A=min_x[axis], TOL=TOL: np.abs(x[:, axis]-A) < TOL
+        slave = lambda x, axis=axis, A=max_x[axis], TOL=TOL: np.abs(x[:, axis]-A) < TOL
 
         error, vertex_mapping = compute_vertex_periodicity(tile, master, slave, to_master)
         # Fail when exended direction is no periodic
@@ -99,16 +99,12 @@ def load_data(mesh, h5_file, data_set, dim, tags, data):
 
 def compute_vertex_periodicity(mesh, master, slave, to_master):
     '''Compute mapping from slave vertices to master vertices'''
-    f = MeshFunction('size_t', mesh, 0, 0)  # As a vertex function
-    master.mark(f, 2)
-    slave.mark(f, 3)
+    x = mesh.coordinates()
 
-    master_vertices = [v.index() for v in SubsetIterator(f, 2)]
-    slave_vertices = set(v.index() for v in SubsetIterator(f, 3))
+    master_vertices = (np.where(master(x))[0]).tolist()
+    slave_vertices = (np.where(slave(x))[0]).tolist()
 
     assert len(master_vertices) == len(slave_vertices), (len(master_vertices), len(slave_vertices))
-
-    x = mesh.coordinates()
 
     error, mapping = 0., {}
     while slave_vertices:
