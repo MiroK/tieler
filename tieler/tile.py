@@ -21,7 +21,9 @@ def powers2(num):
     powers = [int(power)
               for power, value in enumerate(reversed(format(num, 'b')))
               if value != '0']
-
+    info('Number of binary + %d' % (len(powers) - 1))
+    info('Largest tile does %d unary +' % (max(powers) - 1))
+    
     return powers[::-1]
 
 
