@@ -4,7 +4,7 @@ import numpy as np
 import unittest
 
 
-class TestHs0Norm(unittest.TestCase):
+class TestPeriodicity(unittest.TestCase):
     
     def test_vertex_2d(self):
         mesh = UnitSquareMesh(8, 8)
