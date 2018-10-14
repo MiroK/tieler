@@ -1,8 +1,9 @@
+from tieler import TileMesh, load_data, mf_from_data
 
 # ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    from dolfin import mpi_comm_world, HDF5File, Timer, File
+    from dolfin import mpi_comm_world, HDF5File, Timer, File, Mesh, info
     import argparse, os
 
     parser = argparse.ArgumentParser(description='Put n tiles in x axis, m in y axis.')
@@ -26,7 +27,6 @@ if __name__ == '__main__':
     assert ext == '.h5'
 
     shape = (args.n, args.m)
-    assert all((((v & (v - 1)) == 0) and v > 0) for v in shape)
     
     # Load the tile mesh
     comm = mpi_comm_world()
@@ -39,10 +39,10 @@ if __name__ == '__main__':
     facet_dim = cell_dim - 1
 
     if args.facet_tags: 
-        data = load_data(tile, h5, args.facet_tags, facet_dim, data)
+        data = load_data(tile, (h5, args.facet_tags), facet_dim, data)
     
     if args.cell_tags: 
-        data = load_data(tile, h5, args.cell_tags, cell_dim, data)
+        data = load_data(tile, (h5, args.cell_tags), cell_dim, data)
 
     t = Timer('tile')
     mesh, mesh_data = TileMesh(tile, shape, mesh_data=data)
