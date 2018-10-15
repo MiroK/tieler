@@ -1,4 +1,10 @@
-from tieler.tile_cpp import fill_mesh_function
+from dolfin import has_pybind11
+
+if has_pybind11():
+    from tieler.tile_cpp_11 import fill_mesh_function
+else:
+    from tieler.tile_cpp import fill_mesh_function
+    
 from dolfin import MeshFunction, info, SubsetIterator
 from collections import defaultdict
 import numpy as np
