@@ -1,9 +1,4 @@
-from dolfin import has_pybind11
-
-if has_pybind11():
-    from tieler.tile_cpp_11 import fill_mesh
-else:
-    from tieler.tile_cpp import fill_mesh
+from tieler.tile_cpp import fill_mesh
 
 from tieler.periodicity import compute_vertex_periodicity
 
