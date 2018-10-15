@@ -3,6 +3,7 @@ from tieler.tile_cpp import fill_mesh_function
 from dolfin import MeshFunction, info, SubsetIterator
 from collections import defaultdict
 import numpy as np
+import six
 
 
 def mf_from_data(mesh, data):
@@ -17,13 +18,17 @@ def groupby(pairs, index):
     groups = defaultdict(list)
     for pair in pairs: groups[pair[index]].append(pair)
 
-    for item in groups.iteritems():
+    for item in six.iteritems(groups):
         yield item
 
         
 def _mx_from_data(mesh, data, fill, init_container):
     '''Fill the container over mesh by data. Get back dict{tdim -> MeshFoo}'''
-    assert mesh.mpi_comm().tompi4py().size == 1
+    try: 
+        assert mesh.mpi_comm().tompi4py().size == 1
+    # FEniCS 2018
+    except AttributeError:
+        assert mesh.mpi_comm().size == 1
 
     containers = {}
     # We have define entities in terms of vertex numbering

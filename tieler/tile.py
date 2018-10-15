@@ -276,7 +276,12 @@ def evolve_data(data, mapping, other=None):
 def make_mesh(coordinates, cells, tdim, gdim):
     '''Mesh by MeshEditor from vertices and cells'''
     mesh = Mesh()
-    assert mesh.mpi_comm().tompi4py().size == 1
+    # FEniCS 2017
+    try: 
+        assert mesh.mpi_comm().tompi4py().size == 1
+    # FEniCS 2018
+    except AttributeError:
+        assert mesh.mpi_comm().size == 1
 
     fill_mesh(coordinates.flatten(), cells.flatten(), tdim, gdim, mesh)
     
