@@ -3,6 +3,15 @@ from mpi4py import MPI as pyMPI
 import numpy as np
 from dolfin import *
 
+
+def get_comm_world():
+    # FEniCS 2017
+    try:
+        return mpi_comm_world()
+    # FEniCS 2018
+    except NameError:
+        return pyMPI.COMM_WORLD
+
 import unittest
 
 class TestH5(unittest.TestCase):
@@ -15,7 +24,7 @@ class TestH5(unittest.TestCase):
         # Relative to root
         path = './test/tile_1_narrow_GMSH306.h5'
         
-        comm = pyMPI.COMM_WORLD
+        comm = get_comm_world()
         h5 = HDF5File(comm, path, 'r')
         tile = Mesh()
         h5.read(tile, 'mesh', False)
@@ -71,7 +80,7 @@ class TestH5(unittest.TestCase):
         # Relative to root
         path = './test/tile_1_narrow_GMSH306.h5'
         
-        comm = pyMPI.COMM_WORLD
+        comm = get_comm_world()
         h5 = HDF5File(comm, path, 'r')
         tile = Mesh()
         h5.read(tile, 'mesh', False)
