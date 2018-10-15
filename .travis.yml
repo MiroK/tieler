@@ -11,6 +11,6 @@ before_install:
  # H5
  # - pip install h5py --user
  
-install: python setup.py install --user
+install: source setup.rc
 
 script: python -m unittest discover test
