@@ -3,7 +3,8 @@ from tieler import TileMesh, load_data, mf_from_data
 # ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    from dolfin import mpi_comm_world, HDF5File, Timer, File, Mesh, info
+    from dolfin import HDF5File, Timer, File, Mesh, info
+    from mpi4py import MPI
     import argparse, os
 
     parser = argparse.ArgumentParser(description='Put n tiles in x axis, m in y axis.')
@@ -29,7 +30,7 @@ if __name__ == '__main__':
     shape = (args.n, args.m)
     
     # Load the tile mesh
-    comm = mpi_comm_world()
+    comm = MPI.COMM_WORLD
     h5 = HDF5File(comm, args.tile, 'r')
     tile = Mesh()
     h5.read(tile, 'mesh', False)

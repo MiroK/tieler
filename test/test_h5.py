@@ -1,4 +1,5 @@
 from tieler import TileMesh, mf_from_data, load_data
+from mpi4py import MPI
 import numpy as np
 from dolfin import *
 
@@ -14,7 +15,7 @@ class TestH5(unittest.TestCase):
         # Relative to root
         path = './test/tile_1_narrow_GMSH306.h5'
         
-        comm = mpi_comm_world()
+        comm = MPI.COMM_WORLD
         h5 = HDF5File(comm, path, 'r')
         tile = Mesh()
         h5.read(tile, 'mesh', False)
@@ -70,7 +71,7 @@ class TestH5(unittest.TestCase):
         # Relative to root
         path = './test/tile_1_narrow_GMSH306.h5'
         
-        comm = mpi_comm_world()
+        comm = MPI.COMM_WORLD
         h5 = HDF5File(comm, path, 'r')
         tile = Mesh()
         h5.read(tile, 'mesh', False)

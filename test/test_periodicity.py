@@ -27,7 +27,7 @@ class TestPeriodicity(unittest.TestCase):
         self.assertTrue(error < 10*tol)
 
         _, mapping = compute_entity_periodicity(1, mesh, master, slave, to_master)
-        self.assertTrue(len(mapping.keys()) == 8)
+        self.assertTrue(len(list(mapping.keys())) == 8)
         
 
     def test_vertex_3d(self):
@@ -51,4 +51,4 @@ class TestPeriodicity(unittest.TestCase):
         self.assertTrue(error < 10*tol)
 
         _, mapping = compute_entity_periodicity(2, mesh, master, slave, to_master)
-        self.assertTrue(len(mapping.keys()) == 128)
+        self.assertTrue(len(list(mapping.keys())) == 128)

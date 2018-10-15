@@ -5,7 +5,12 @@ from tieler.periodicity import compute_vertex_periodicity
 from dolfin import Mesh, info, Timer, CompiledSubDomain
 
 from collections import namedtuple
-from itertools import izip
+
+try:
+    from itertools import izip
+except ImportError:
+    izip = zip
+    
 from copy import deepcopy
 import numpy as np
 
@@ -170,8 +175,8 @@ def evolve(x, cells, vertex_mappings, shape, shifts_x, mesh_data={}):
     # we develop the tiles in their LOCAL numbering => they each start
     # from their copy
     vertex_mapping, shift_x = vertex_mappings.pop(), shifts_x.pop()
-    master_vertices = vertex_mapping.values()
-    slave_vertices = vertex_mapping.keys()
+    master_vertices = list(vertex_mapping.values())
+    slave_vertices = list(vertex_mapping.keys())
 
     tiles = []
     # Are we even or odd (to keep the initial tile)
@@ -194,7 +199,7 @@ def evolve(x, cells, vertex_mappings, shape, shifts_x, mesh_data={}):
 
         # For the directions that do not evolve we add the new periodic pairs
         for vm in vertex_mappings:
-            keys, values = np.array(vm.items()).T
+            keys, values = np.array(list(vm.items())).T
             vm.update(dict(izip(translate[keys], translate[values])))
 
         # Update the periodicty mapping - slaves are new
@@ -240,7 +245,7 @@ def evolve(x, cells, vertex_mappings, shape, shifts_x, mesh_data={}):
 
         # Updata periodicity mappings of next tile using new global map
         for vm, next_vm in zip(vertex_mappings, next_tile.mappings):
-            keys, values = np.array(next_vm.items()).T
+            keys, values = np.array(list(next_vm.items())).T
             vm.update(dict(izip(translate[keys], translate[values])))
 
         # Data evolve
