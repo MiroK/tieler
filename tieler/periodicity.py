@@ -1,5 +1,9 @@
 from dolfin import MeshFunction, SubsetIterator
+from collections import namedtuple
 import numpy as np
+
+
+PeriodicMap = namedtuple('pmap', ('keys', 'values'))
 
 
 def compute_vertex_periodicity(mesh, master, slave, to_master):
@@ -14,7 +18,7 @@ def compute_vertex_periodicity(mesh, master, slave, to_master):
 
     OUTPUT:
       error = largest distance between master and slave vertex coordinates
-      mapping = dict{slave vertex index -> master vertex index}
+      mapping = PeriodicMap(slave vertex index, master vertex index)
     '''
     f = MeshFunction('size_t', mesh, 0, 0)  # As a vertex function
     master.mark(f, 2)
@@ -27,7 +31,7 @@ def compute_vertex_periodicity(mesh, master, slave, to_master):
 
     x = mesh.coordinates()
 
-    error, mapping = 0., {}
+    error, mapping_keys, mapping_values = 0., [], []
     while slave_vertices:
         s = slave_vertices.pop()
         xs = x[s]  # Its coord
@@ -39,14 +43,15 @@ def compute_vertex_periodicity(mesh, master, slave, to_master):
         mapped_index = np.argmin(dist)
         # Wrt to vertex numbering
         m = master_vertices[mapped_index]
-        mapping[s] = m
+        mapping_keys.append(s)
+        mapping_values.append(m)
         # Do we have a match ?
         error = max(error, dist[mapped_index])
         # Assume we do so no more match possible
         master_vertices.remove(m)
     assert not slave_vertices and not master_vertices
     
-    return error, mapping
+    return error, PeriodicMap(mapping_keys, mapping_values)
 
 
 def compute_entity_periodicity(tdim, mesh, master, slave, to_master):
@@ -61,7 +66,7 @@ def compute_entity_periodicity(tdim, mesh, master, slave, to_master):
 
     OUTPUT:
       error = largest distance between master and slave vertex coordinates
-      mapping = dict{slave tdim entity index -> master tdim entity index}
+      mapping = PeriodicMap(slave tdim entity index, master tdim entity index)
     '''
     assert 0 <= tdim < mesh.topology().dim()
 
@@ -69,7 +74,8 @@ def compute_entity_periodicity(tdim, mesh, master, slave, to_master):
     # Done for vertices
     if tdim == 0:
         return error, vertex_mapping
-
+    # Faster lookup
+    vertex_mapping = dict(zip(vertex_mapping.keys, vertex_mapping.values))
     # Other entities are established using their definition in terms
     # of vertex indices
     f = MeshFunction('size_t', mesh, tdim, 0)
@@ -88,14 +94,15 @@ def compute_entity_periodicity(tdim, mesh, master, slave, to_master):
 
     assert len(master_vertices) == len(slave_entities)
 
-    mapping = {}
+    mapping_keys, mapping_values = [], []
     while slave_entities:
         s, vertices = slave_entities.popitem()
         # Look up the master entity
         m = master_vertices[vertices]
-        mapping[s] = m
+        mapping_keys.append(s)
+        mapping_values.append(m)
         
         master_vertices.pop(vertices)
     assert not slave_entities and not master_vertices
     
-    return error, mapping
+    return error, PeriodicMap(mapping_keys, mapping_values)
