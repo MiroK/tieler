@@ -41,8 +41,9 @@ def _mx_from_data(mesh, data, fill, init_container):
         f = init_container(mesh, tdim)
         for key in keys:
             indices = data[key]
+            indices.shape = (np.prod(indices.shape), )
             # These entity indices get the 'color'
-            fill(mesh, indices.flatten(), tdim, key[1], f)
+            fill(mesh, indices, tdim, key[1], f)
         containers[tdim] = f
 
     return containers
