@@ -1,18 +1,16 @@
 from tieler.tile_cpp import fill_mesh
-
 from tieler.periodicity import compute_vertex_periodicity
-
 from dolfin import Mesh, info, Timer, CompiledSubDomain
-
 from collections import namedtuple
+from copy import deepcopy
 
+import numpy as np
 try:
     from itertools import izip
 except ImportError:
     izip = zip
     
-from copy import deepcopy
-import numpy as np
+
 
 # MAIN IDEA:
 # We have x, cells, ... representing a single cell. To get the tile
@@ -283,6 +281,8 @@ def make_mesh(coordinates, cells, tdim, gdim):
     except AttributeError:
         assert mesh.mpi_comm().size == 1
 
-    fill_mesh(coordinates.flatten(), cells.flatten(), tdim, gdim, mesh)
+    coordinates.shape = (np.prod(coordinates.shape), )
+    cells.shape = (np.prod(cells.shape), )
+    fill_mesh(coordinates, cells, tdim, gdim, mesh)
     
     return mesh

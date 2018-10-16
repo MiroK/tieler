@@ -1,10 +1,20 @@
 from tieler import TileMesh, load_data, mf_from_data
+from mpi4py import MPI as pyMPI
+
+
+def get_comm_world():
+    # FEniCS 2017
+    try:
+        from dolfin import mpi_comm_world 
+        return mpi_comm_world()
+    # FEniCS 2018
+    except ImportError:
+        return pyMPI.COMM_WORLD
 
 # ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     from dolfin import HDF5File, Timer, File, Mesh, info
-    from mpi4py import MPI
     import argparse, os
 
     parser = argparse.ArgumentParser(description='Put n tiles in x axis, m in y axis.')
@@ -30,8 +40,7 @@ if __name__ == '__main__':
     shape = (args.n, args.m)
     
     # Load the tile mesh
-    comm = MPI.COMM_WORLD
-    h5 = HDF5File(comm, args.tile, 'r')
+    h5 = HDF5File(get_comm_world(), args.tile, 'r')
     tile = Mesh()
     h5.read(tile, 'mesh', False)
 
