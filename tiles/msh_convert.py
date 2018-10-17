@@ -20,7 +20,8 @@ def convert(msh_file, h5_file):
 
     info('Mesh has %d cells' % mesh.num_cells())
     info('Mesh size %g %g' % (mesh.hmin(), mesh.hmax()))
-    
+
+    outputs = [mesh]
     # Save ALL data as facet_functions
     names = ('surfaces', 'volumes')
     for name, region in zip(names, ('facet_region.xml', 'physical_region.xml')):
@@ -28,8 +29,11 @@ def convert(msh_file, h5_file):
 
         f = MeshFunction('size_t', mesh, r_xml_file)
         out.write(f, name)
+        
+        outputs.append(f)
+        
+    return outputs
 
-    return True
     
 
 def cleanup(files=None, exts=()):
