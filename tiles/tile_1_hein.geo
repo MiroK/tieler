@@ -2,13 +2,13 @@ Print.X3dPrecision = 1E-15;
 Geometry.Tolerance = 1E-12;
 
 DefineConstant[
-radius = {10, Name "radius of cell"}
+radius = {11.5, Name "radius of cell"}
 radius_x = {8, Name "radius of connection in x direction"}
 radius_y = {6, Name "radius of connection in y direction"}
-length = {100, Name "length of cell (body)"}
-length_x = {1, Name "length of connection in x direction"}
-length_y = {1, Name "length of connection in y direction"}
-padz = {0.25, Name "bounding box padding in z direction"}
+length = {96, Name "length of cell (body)"}
+length_x = {2, Name "length of connection in x direction"}
+length_y = {1.0, Name "length of connection in y direction"}
+padz = {1.0, Name "bounding box padding in z direction"}
 Hein = {5.0, Name "Superellipse exponent"}
 ];
 
@@ -18,7 +18,7 @@ SetFactory("OpenCASCADE");
 // Create the main body of the cell. Well quarete and then rotate for rest
 r = Hein;
 npts = 20;  // Control points for the ellipse
-size = Mesh.PointSize;
+size = 10;
 
 pointFirst = newp;
 Point(pointFirst) = {0, radius, -length/2, size};
