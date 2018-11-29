@@ -19,8 +19,12 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Put n tiles in x axis, m in y axis.')
     parser.add_argument('tile', type=str, help='H5 file that is the file')
-    parser.add_argument('-n', type=int, default=1)
-    parser.add_argument('-m', type=int, default=1)
+    parser.add_argument('-n', type=int, default=1, help='Number of tiles in x dir')
+    parser.add_argument('-m', type=int, default=1, help='Number of tiles in y dir')
+    # NOTE: give option to scale the tile rather than the final mesh
+    parser.add_argument('-scale_x', type=float, default=1.,
+                        help='Scale factor for coordinates')
+    
     parser.add_argument('-facet_tags', type=str, default='surfaces',
                         help='name under which H5 stores facet tags')
     parser.add_argument('-cell_tags', type=str, default='volumes',
@@ -31,6 +35,12 @@ if __name__ == '__main__':
     save_pvd_parser.add_argument('--no_save_pvd', dest='save_pvd', action='store_false')
     parser.set_defaults(save_pvd=False)
 
+    # NOTE: give option to shift the tile rather than the final mesh
+    shift_origin_parser = parser.add_mutually_exclusive_group(required=False)
+    shift_origin_parser.add_argument('--shift_origin', dest='shift_origin', action='store_true')
+    shift_origin_parser.add_argument('--no_shift_origin', dest='shift_origin', action='store_false')
+    parser.set_defaults(shift_origin=True)
+    
     args = parser.parse_args()
 
     # Some sanity
@@ -44,6 +54,14 @@ if __name__ == '__main__':
     tile = Mesh()
     h5.read(tile, 'mesh', False)
 
+    # Shift and so
+    x = tile.coordinates()
+    if args.shift_origin:
+        xmin = x.min(axis=0)
+        x[:] -= xmin
+        
+    x[:] *= args.scale_x
+    
     data = {}
     cell_dim = tile.topology().dim()
     facet_dim = cell_dim - 1
