@@ -23,11 +23,19 @@ direction to create the mesh.
 
 1. Get the mesh for the tile: `gmsh -3 -clscale 0.3 tile_1_narrow_GMSH306.geo`
 2. Wrap the mesh with data to H5: `python msh_convert.py tile_1_narrow_GMSH306.geo`
-3. Tile the domain: `python tiled_mesh.py tile_1_narrow_GMSH306.h5 -n 3 -m 4`
+3. Tile the domain: `python tiled_mesh.py tile_1_narrow_GMSH306.h5 -m 3 -m 3 -scale_x 1E-3`
 
-Here `python` is either python2 or python3. Note that Gmsh version should
-match that of the tile. (The .geo files have hardcoded mapping for periodic
-entities and their numbering seems to change between versions.)
+Where `scale_x` argument makes the units of mesh to be milimiters. Further, `python` is 
+either python2 or python3. Note that Gmsh version should match that of the tile. 
+(The .geo files have hardcoded mapping for periodic entities and their numbering seems 
+to change between versions.). Also note that 1.-3. can only run in serial.
+
+There is an optional step 4 which removes those (heart) cells of the mesh that touch
+the mesh boundary 
+
+4. `mpirun -np 3 python3 deactive_cells.py tile_1_narrow_GMSH306_3_3.h5 -m 3 -n 3`
+
+Note that a new mesh is created. As seen above this step allows for parallel execution.
 
 ## CI testing
 This package is CI tested against FEniCS packages for `ubuntu 16.04 LTS` [![Build Status](https://travis-ci.org/MiroK/tieler.svg?branch=master)](https://travis-ci.org/MiroK/tieler)

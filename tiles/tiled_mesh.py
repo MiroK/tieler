@@ -19,8 +19,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Put n tiles in x axis, m in y axis.')
     parser.add_argument('tile', type=str, help='H5 file that is the file')
-    parser.add_argument('-n', type=int, default=1, help='Number of tiles in x dir')
-    parser.add_argument('-m', type=int, default=1, help='Number of tiles in y dir')
+    parser.add_argument('-m', type=int, default=1, help='Number of tiles in x dir')
+    parser.add_argument('-n', type=int, default=1, help='Number of tiles in y dir')
     # NOTE: give option to scale the tile rather than the final mesh
     parser.add_argument('-scale_x', type=float, default=1.,
                         help='Scale factor for coordinates')
@@ -45,9 +45,10 @@ if __name__ == '__main__':
 
     # Some sanity
     root, ext = os.path.splitext(args.tile)
+    assert args.m > 0 and args.n > 0
     assert ext == '.h5'
 
-    shape = (args.n, args.m)
+    shape = (args.m, args.n)
     
     # Load the tile mesh
     h5 = HDF5File(get_comm_world(), args.tile, 'r')
@@ -56,11 +57,16 @@ if __name__ == '__main__':
 
     # Shift and so
     x = tile.coordinates()
-    if args.shift_origin:
-        xmin = x.min(axis=0)
-        x[:] -= xmin
-        
+    xmin = x.min(axis=0)
+    dx = x.max(axis=0) - xmin
+
+    if args.shift_origin: x[:] -= xmin
+    
     x[:] *= args.scale_x
+
+    # Did it work?
+    print(dx, 'vs', x.max(axis=0)-x.min(axis=0), xmin, x.min(axis=0))
+    
     
     data = {}
     cell_dim = tile.topology().dim()
@@ -74,9 +80,13 @@ if __name__ == '__main__':
 
     t = Timer('tile')
     mesh, mesh_data = TileMesh(tile, shape, mesh_data=data)
-    info('\nTiling took %g s; nvertices %d, ncells %d' % (t.stop(),
-                                                          mesh.num_vertices(),
-                                                          mesh.num_cells()))
+    info('\nTiling took %g s; nvertices %d, nfacets %d, ncells %d' % (t.stop(),
+                                                                      mesh.num_vertices(),
+                                                                      mesh.init(2),
+                                                                      mesh.num_cells()))
+
+    x_ = mesh.coordinates()
+    print('Final mesh size', x_.min(axis=0), x_.max(axis=0)-x_.min(axis=0))
 
     # Saving
     t = Timer('save')
