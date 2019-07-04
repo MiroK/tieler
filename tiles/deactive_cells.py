@@ -64,13 +64,21 @@ if __name__ == '__main__':
     save_pvd_parser.add_argument('--save_pvd', dest='save_pvd', action='store_true')
     save_pvd_parser.add_argument('--no_save_pvd', dest='save_pvd', action='store_false')
     parser.set_defaults(save_pvd=False)
-    
+
+    inplace_parser = parser.add_mutually_exclusive_group(required=False)
+    inplace_parser.add_argument('--in_place', dest='in_place', action='store_true')
+    inplace_parser.add_argument('--no_in_place', dest='in_place', action='store_false')
+    parser.set_defaults(in_place=False)
+
     args = parser.parse_args()
 
     # Some sanity
     root, ext = os.path.splitext(args.mesh)
     assert args.m > 2 and args.n > 2
     assert ext == '.h5'
+
+    # Typically we have files named foo_ncellsX_ncellsY.h5
+    assert tuple(map(int, root.split('_')[-2:])) == (args.m, args.n)
 
     # Load the original 
     h5 = HDF5File(get_comm_world(), args.mesh, 'r')
@@ -95,15 +103,20 @@ if __name__ == '__main__':
     # Write 
     tt = Timer('write')
     # Completely new
-    h5_file = ''.join(['_'.join([root, 'noBdry']), ext])
+    if not args.in_place:
+        h5_file = ''.join(['_'.join([root, 'noBdry']), ext])
 
-    h5 = HDF5File(get_comm_world(), h5_file, 'w')
-    # FIXME: replacing
-    h5.write(mesh, 'mesh')
-    h5.write(surfaces, 'surfaces')
-    h5.write(volumes, 'volumes')
-    h5.close()
-
+        h5 = HDF5File(get_comm_world(), h5_file, 'w')
+        # FIXME: replacing
+        h5.write(mesh, 'mesh')
+        h5.write(surfaces, 'surfaces')
+        h5.write(volumes, 'volumes')
+        h5.close()
+    else:
+        import h5py
+        
+        assert False
+            
     info('Writing new entity functions took %g s' % tt.stop())
 
     # Optional visualization
