@@ -23,7 +23,7 @@ direction to create the mesh.
 
 1. Get the mesh for the tile: `gmsh -3 -clscale 0.3 tile_1_narrow_GMSH306.geo`
 2. Wrap the mesh with data to H5: `python msh_convert.py tile_1_narrow_GMSH306.geo`
-3. Tile the domain: `python tiled_mesh.py tile_1_narrow_GMSH306.h5 -m 3 -m 3 -scale_x 1E-3`
+3. Tile the domain: `python tiled_mesh.py tile_1_narrow_GMSH306.h5 -m 3 -n 4 -scale_x 1E-3`
 
 Where `scale_x` argument makes the units of mesh to be milimiters. Further, `python` is 
 either python2 or python3. Note that Gmsh version should match that of the tile. 
