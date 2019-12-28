@@ -21,8 +21,8 @@ sure that your Gmsh version is at least 3.0.6 but less than 4.+. In the followin
 the tile `tile_1_narrow_GMSH306.geo` is repeated 3 times in x and 4 times in y 
 direction to create the mesh.
 
-1. Get the mesh for the tile: `gmsh -3 -clscale 0.3 tile_1_narrow_GMSH306.geo`
-2. Wrap the mesh with data to H5: `python msh_convert.py tile_1_narrow_GMSH306.geo`
+1. Get the mesh for the tile: `gmsh -3 -clscale 0.3 -format msh2 tile_1_narrow_GMSH306.geo`
+2. Wrap the mesh with data to H5: `python msh_convert.py tile_1_narrow_GMSH306.msh`
 3. Tile the domain: `python tiled_mesh.py tile_1_narrow_GMSH306.h5 -m 3 -m 3 -scale_x 1E-3`
 
 Where `scale_x` argument makes the units of mesh to be milimiters. Further, `python` is 
