@@ -73,6 +73,13 @@ boundMaster[] = {6, 7, 8, 1, 9};
 boundSlave[] = {12, 14, 10, 4, 15};
 Periodic Surface surfSlave { boundSlave[] } = surfMaster { boundMaster[] };
 
+// Z Periodicity
+surfMaster = 4;
+surfSlave = 3;
+boundMaster[] = {3, 6, 13, 12};
+boundSlave[] = {2, 8, 11, 10};
+Periodic Surface surfSlave { boundSlave[] } = surfMaster { boundMaster[] };
+
 // // Physical volumes and surfaces
 Physical Volume(1) = {cylinder};
 Physical Volume(0) = {box};

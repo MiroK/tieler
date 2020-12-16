@@ -21,6 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('tile', type=str, help='H5 file that is the file')
     parser.add_argument('-m', type=int, default=1, help='Number of tiles in x dir')
     parser.add_argument('-n', type=int, default=1, help='Number of tiles in y dir')
+    parser.add_argument('-k', type=int, default=1, help='Number of tiles in z dir')    
     # NOTE: give option to scale the tile rather than the final mesh
     parser.add_argument('-scale_x', type=float, default=1.,
                         help='Scale factor for coordinates')
@@ -48,7 +49,10 @@ if __name__ == '__main__':
     assert args.m > 0 and args.n > 0
     assert ext == '.h5'
 
-    shape = (args.m, args.n)
+    if args.k == 1:
+        shape = (args.m, args.n)
+    else:
+        shape = (args.m, args.n, args.k)
     
     # Load the tile mesh
     h5 = HDF5File(get_comm_world(), args.tile, 'r')
@@ -90,7 +94,8 @@ if __name__ == '__main__':
 
     # Saving
     t = Timer('save')
-    h5_file = '%s_%d_%d.h5' % (root, shape[0], shape[1])
+    shape_str = ('%d'*len(shape) % shape)
+    h5_file = '%s_%s.h5' % (root, shape_str)
         
     out = HDF5File(mesh.mpi_comm(), h5_file, 'w')
     out.write(mesh, 'mesh')
@@ -105,7 +110,7 @@ if __name__ == '__main__':
                 out.write(mfs[dim], name)
             
                 if args.save_pvd:
-                    File('%s_%d_%d_%s.pvd' % (root, shape[0], shape[1], name)) << mfs[dim]
+                    File('%s_%s_%s.pvd' % (root, shape_str, name)) << mfs[dim]
                 
     info('\t\tGetting data as MeshFoo took %g s' % tt.stop())
     
