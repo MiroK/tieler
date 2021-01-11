@@ -10,23 +10,21 @@ def pattern_mesh(pattern, tiles, axis=None):
     # Tiles are cell functions and we return a cell function where the nonzero
     # subdomains in tiles are numbered as they appear in the pattern
     if axis is None:
-        axis = np.arange(pattern.ndim)[::-1]
+        axis = np.arange(pattern.ndim)
     assert len(axis) == pattern.ndim
     assert all(a >= 0 for a in axis)
 
-    # An nd-dim pattern is patten_mesh of the stitched tiles - so we
+    # An nd-dim pattern is new pattern flued along last axis
     # reduce to base case
     if pattern.ndim > 1:
-        # Glue along the first axis
         stitch_pattern, stitch_tiles = [], {}
         for tile_id, axis_pattern in enumerate(pattern):
-            print(axis, tile_id, pattern)
-            stitch_tiles[tile_id] = pattern_mesh(axis_pattern, tiles, axis[1:])
+            stitch_tiles[tile_id] = pattern_mesh(axis_pattern, tiles, axis[:-1])
             stitch_pattern.append(tile_id)
         # We have now reduced the dim of pattern and built entirely new tiles
         # to be glued along the remainging axis
-        return pattern_mesh(np.array(stitch_pattern), stitch_tiles, axis[:1])
-    # The base case
+        return pattern_mesh(np.array(stitch_pattern), stitch_tiles, axis[-1:])
+    # The base case 
     assert len(pattern) > 0
     return translate_stitch(pattern, tiles, axis[0])
 
@@ -153,4 +151,4 @@ if __name__ == '__main__':
     #axis = 0
     #aa = stitch(pattern, tiles, axis)
 
-    #df.File('fpp.pvd') << aa
+    df.File('fpp.pvd') << foo
