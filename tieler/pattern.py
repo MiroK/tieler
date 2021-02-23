@@ -2,6 +2,7 @@ from tieler.periodicity import vertex_translate_stitch_mapping
 from tieler.tile import merge, make_mesh
 from collections import deque
 import numpy as np
+import dolfin as df
 
 
 def check_pattern_periodicity(pattern, tiles, axis=None, TOL=1E-13):
