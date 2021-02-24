@@ -1,6 +1,7 @@
 from tieler.periodicity import vertex_translate_stitch_mapping
 from tieler.tile import merge, make_mesh
 from collections import deque
+import dolfin as df
 import numpy as np
 
 
@@ -85,17 +86,18 @@ def translate_stitch(pattern, tiles, axis, tagged_cells=[]):
     n = len(x1_cells)
     mesh12_array = mesh12_f.array()
     mesh12_array[:n] = first.array()
-    
     # Since we always append x2_cells we just offset nonzero cells
-    global_tag = len(tagged_cells)
+    global_tag = sum(np.unique(first.array()) > 0)
+
     nz_tags = np.unique(second.array())
     for tag in sorted(nz_tags):
         if tag:
+            global_tag += 1
+            
             cells = n + np.where(second.array() == tag)[0]
             tagged_cells.append(cells)
             mesh12_array[cells] = global_tag
 
-            global_tag += 1
 
     pattern.appendleft(key)
     tiles[key] = mesh12_f
@@ -137,6 +139,13 @@ if __name__ == '__main__':
                         [0, 1, 2, 0, 1, 1],
                         [0, 1, 2, 0, 2, 2]]])
 
+    pattern = np.array([[[1, 1, 1, 1],
+                         [1, 1, 1, 1],
+                         [1, 1, 1, 1]],
+                        [[1, 1, 1, 1],
+                         [1, 1, 1, 1],
+                         [1, 1, 1, 1]]])
+    
     #pattern = np.array([[0, 1, 2, 0, 1, 1],
     #                     [0, 2, 1, 0, 2, 2],
     #                     [0, 1, 2, 0, 1, 1],
@@ -152,3 +161,4 @@ if __name__ == '__main__':
     #aa = stitch(pattern, tiles, axis)
 
     df.File('fpp.pvd') << foo
+    print(set(foo.array()))
