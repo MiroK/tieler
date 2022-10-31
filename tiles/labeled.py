@@ -12,7 +12,7 @@ if __name__ == '__main__':
     parser.add_argument('-m', type=int, default=1, help='Number of tiles in x dir')
     parser.add_argument('-n', type=int, default=1, help='Number of tiles in y dir')
     parser.add_argument('-k', type=int, default=1, help='Number of tiles in z dir')
-    parser.add_argument('--save_pvd', type=bool, default=False, help='Save resulting pattern to pvd file')
+    parser.add_argument('--save_pvd', dest='save_pvd', action='store_true')
     args = parser.parse_args()
     
     tile = args.tile
@@ -34,9 +34,9 @@ if __name__ == '__main__':
     if args.save_pvd:
         df.File('result/x.pvd') << foo
     
-    root = tile.split(".xdmf")[0]
+    root = tile.split(".h5")[0]
     shape_str = ('_%d'*len(shape) % shape)
-    h5_file = '%s%s.xdmf' % (root, shape_str)
+    h5_file = '%s%s.h5' % (root, shape_str)
 
     fout = df.HDF5File(MPI.COMM_WORLD, h5_file, 'w')
     fout.write(foo.mesh(), 'mesh')
