@@ -22,7 +22,7 @@ the tile `tile_1_narrow_GMSH306.geo` is repeated 3 times in x and 4 times in y
 direction to create the mesh.
 
 1. Get the mesh for the tile: `gmsh -3 -clscale 0.3 tile_1_narrow_GMSH306.geo`
-2. Wrap the mesh with data to H5: `python msh_convert.py tile_1_narrow_GMSH306.geo`
+2. Wrap the mesh with data to H5: `python msh_convert.py tile_1_narrow_GMSH306.msh`
 3. Tile the domain: `python tiled_mesh.py tile_1_narrow_GMSH306.h5 -m 3 -n 4 -scale_x 1E-3`
 
 Where `scale_x` argument makes the units of mesh to be milimiters. Further, `python` is 
@@ -35,7 +35,15 @@ the mesh boundary
 
 4. `mpirun -np 3 python3 deactive_cells.py tile_1_narrow_GMSH306_3_3.h5 -m 3 -n 3`
 
-Note that a new mesh is created. As seen above this step allows for parallel execution.
+## EMI usage alternatively
+Instead of specifying the cell in the geo file we can use Gmsh Python API directly 
+
+1. Get the mesh for the tile: `python3 tile_1_narrow.py -clscale 0.3 -format msh2`
+2. Wrap the mesh with data to H5: `python msh_convert.py tile_1_narrow.msh`
+3. Tile the domain: `python tiled_mesh.py tile_1_narrow.h5 -m 3 -n 4 -scale_x 1E-3`
+
+Note that `-format msh2` flag is necessary for step 2 to work. For conversion betweem
+msh and dolfin compatible formats you could instead use [meshio](https://github.com/nschloe/meshio).
 
 ## CI testing
 This package is CI tested against FEniCS packages for `ubuntu 16.04 LTS` [![Build Status](https://travis-ci.org/MiroK/tieler.svg?branch=master)](https://travis-ci.org/MiroK/tieler)

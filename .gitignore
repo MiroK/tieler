@@ -3,3 +3,8 @@
 *.pyc
 *~
 *.swp
+
+*.pvd
+*.vtu
+*.xml
+*.geo_unrolled
